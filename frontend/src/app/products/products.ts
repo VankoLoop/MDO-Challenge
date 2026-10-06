@@ -10,4 +10,7 @@ export class Products {
   list(): Observable<Product[]> {
     return this.http.get<Product[]>('http://localhost:3000/products');
   }
+  get(id: number): Observable<Product> {
+  return this.http.get<Product>(`http://localhost:3000/products/${id}`);
+  }
 }
