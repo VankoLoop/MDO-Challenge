@@ -14,7 +14,7 @@ import { Products } from '../products';
 export class ProductList {
   private readonly productsService = inject(Products);
 
-  readonly columns = ['name', 'price', 'stock'];
+  readonly columns = ['name', 'price', 'stock', 'actions'];
   readonly products = signal<Product[]>([]);
 
   constructor() {

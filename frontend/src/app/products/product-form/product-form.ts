@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,7 +15,11 @@ export class ProductForm {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly products = inject(Products);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly idParam = this.route.snapshot.paramMap.get('id');
 
+  readonly id = this.idParam ? Number(this.idParam) : null;
+  readonly isEdit = this.id !== null;
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
 
@@ -26,6 +30,15 @@ export class ProductForm {
     stock: [0, [Validators.required, Validators.min(0)]],
   });
 
+  constructor() {
+  if (this.id !== null) {
+    this.products.get(this.id).subscribe({
+      next: (p) => this.form.patchValue(p),
+      error: () => this.error.set('Product not found.'),
+    });
+  }
+  }
+
   submit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -33,7 +46,13 @@ export class ProductForm {
     }
     this.saving.set(true);
     this.error.set(null);
-    this.products.create(this.form.getRawValue()).subscribe({
+    const value = this.form.getRawValue();
+    const request =
+      this.id !== null
+        ? this.products.update(this.id, value)
+        : this.products.create(value);
+
+    request.subscribe({
       next: () => this.router.navigate(['/products']),
       error: () => {
         this.error.set('Could not save the product.');

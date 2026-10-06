@@ -18,5 +18,8 @@ export class Products {
   }
   create(input: ProductInput): Observable<Product> {
   return this.http.post<Product>('http://localhost:3000/products', input);
-}
+  }
+  update(id: number, input: Partial<ProductInput>): Observable<Product> {
+  return this.http.patch<Product>(`http://localhost:3000/products/${id}`, input);
+  }
 }
