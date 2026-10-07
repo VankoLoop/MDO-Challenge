@@ -22,7 +22,7 @@ export class ProductList {
   }
 
   load() {
-    this.productsService.list().subscribe((data) => this.products.set(data));
+  this.productsService.list().subscribe((res) => this.products.set(res.data));
   }
 
   delete(product: Product) {

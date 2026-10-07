@@ -5,3 +5,10 @@ export interface Product {
   price: number;
   stock: number;
 }
+
+export interface ProductPage {
+  data: Product[];
+  total: number;
+  page: number;
+  limit: number;
+}
