@@ -19,6 +19,7 @@
   <th mat-header-cell *matHeaderCellDef></th>
   <td mat-cell *matCellDef="let p">
     <a mat-button [routerLink]="['/products', p.id, 'edit']">Edit</a>
+    <button mat-button (click)="delete(p)">Delete</button>
   </td>
   </ng-container>
 

@@ -22,4 +22,7 @@ export class Products {
   update(id: number, input: Partial<ProductInput>): Observable<Product> {
   return this.http.patch<Product>(`http://localhost:3000/products/${id}`, input);
   }
+  remove(id: number): Observable<Product> {
+  return this.http.delete<Product>(`http://localhost:3000/products/${id}`);
+  }
 }

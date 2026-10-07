@@ -18,7 +18,16 @@ export class ProductList {
   readonly products = signal<Product[]>([]);
 
   constructor() {
+    this.load();
+  }
+
+  load() {
     this.productsService.list().subscribe((data) => this.products.set(data));
+  }
+
+  delete(product: Product) {
+    if (!confirm(`Delete "${product.name}"?`)) return;
+    this.productsService.remove(product.id).subscribe(() => this.load());
   }
 }
   
