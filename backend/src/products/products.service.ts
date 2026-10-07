@@ -1,52 +1,50 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, Product } from '../generated/prisma/client.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateProductDto } from './dto/create-product.dto.js';
 import { UpdateProductDto } from './dto/update-product.dto.js';
-import { Product } from './entities/product.entity.js';
 
 @Injectable()
 export class ProductsService {
-  private products: Product[] = [];
-  private nextId = 1;
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(createProductDto: CreateProductDto): Product {
-    const product: Product = { id: this.nextId++, ...createProductDto };
-    this.products.push(product);
-    return product;
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    return this.prisma.product.create({ data: createProductDto });
   }
 
-  findAll(page: number, limit: number, minPrice?: number, maxPrice?: number) {
-    const filtered = this.products.filter(
-      (p) =>
-        (minPrice === undefined || p.price >= minPrice) &&
-        (maxPrice === undefined || p.price <= maxPrice),
-    );
-
-    const start = (page - 1) * limit;
-    return {
-      data: filtered.slice(start, start + limit),
-      total: filtered.length,
-      page,
-      limit,
+  async findAll(page: number, limit: number, minPrice?: number, maxPrice?: number) {
+    const where: Prisma.ProductWhereInput = {
+      price: { gte: minPrice, lte: maxPrice },
     };
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.product.findMany({
+        where,
+        orderBy: { id: 'asc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return { data, total, page, limit };
   }
 
-  findOne(id: number): Product {
-    const product = this.products.find((p) => p.id === id);
+  async findOne(id: number): Promise<Product> {
+    const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto): Product {
-    const product = this.findOne(id);
-    Object.assign(product, updateProductDto);
-    return product;
+  async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
+    await this.findOne(id);
+    return this.prisma.product.update({ where: { id }, data: updateProductDto });
   }
 
-  remove(id: number): Product {
-    const product = this.findOne(id);
-    this.products = this.products.filter((p) => p.id !== id);
-    return product;
+  async remove(id: number): Promise<Product> {
+    await this.findOne(id);
+    return this.prisma.product.delete({ where: { id } });
   }
 }
