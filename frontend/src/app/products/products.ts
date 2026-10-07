@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Product, ProductPage } from './product.model';
@@ -7,12 +7,15 @@ export type ProductInput = Omit<Product, 'id'>;
 
 @Service()
 export class Products {
-  
+
   private readonly http = inject(HttpClient);
 
-  list(): Observable<ProductPage> {
-  return this.http.get<ProductPage>('http://localhost:3000/products');
-  }
+  list(page: number, limit: number, minPrice?: number | null, maxPrice?: number | null): Observable<ProductPage> {
+  let params = new HttpParams().set('page', page).set('limit', limit);
+  if (minPrice != null) params = params.set('minPrice', minPrice);
+  if (maxPrice != null) params = params.set('maxPrice', maxPrice);
+  return this.http.get<ProductPage>('http://localhost:3000/products', { params });
+ } 
   get(id: number): Observable<Product> {
   return this.http.get<Product>(`http://localhost:3000/products/${id}`);
   }
