@@ -1,0 +1,28 @@
+<a mat-flat-button routerLink="/products/new">New product</a>
+<table mat-table [dataSource]="products()">
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>Name</th>
+    <td mat-cell *matCellDef="let p"><a [routerLink]="['/products', p.id]">{{ p.name }}</a></td>
+  </ng-container>
+
+  <ng-container matColumnDef="price">
+    <th mat-header-cell *matHeaderCellDef>Price</th>
+    <td mat-cell *matCellDef="let p">{{ p.price }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="stock">
+    <th mat-header-cell *matHeaderCellDef>Stock</th>
+    <td mat-cell *matCellDef="let p">{{ p.stock }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+  <th mat-header-cell *matHeaderCellDef></th>
+  <td mat-cell *matCellDef="let p">
+    <a mat-button [routerLink]="['/products', p.id, 'edit']">Edit</a>
+    <button mat-button (click)="delete(p)">Delete</button>
+  </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>

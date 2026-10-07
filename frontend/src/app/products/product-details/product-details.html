@@ -1,0 +1,10 @@
+<a routerLink="/products">← Back to products</a>
+
+@if (error()) {
+  <p>{{ error() }}</p>
+} @else if (product(); as p) {
+  <h1>{{ p.name }}</h1>
+  <p>{{ p.description || 'No description' }}</p>
+  <p>Price: {{ p.price }}</p>
+  <p>Stock: {{ p.stock }}</p>
+}
