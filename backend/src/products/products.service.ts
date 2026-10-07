@@ -14,8 +14,20 @@ export class ProductsService {
     return product;
   }
 
-  findAll(): Product[] {
-    return this.products;
+  findAll(page: number, limit: number, minPrice?: number, maxPrice?: number) {
+    const filtered = this.products.filter(
+      (p) =>
+        (minPrice === undefined || p.price >= minPrice) &&
+        (maxPrice === undefined || p.price <= maxPrice),
+    );
+
+    const start = (page - 1) * limit;
+    return {
+      data: filtered.slice(start, start + limit),
+      total: filtered.length,
+      page,
+      limit,
+    };
   }
 
   findOne(id: number): Product {

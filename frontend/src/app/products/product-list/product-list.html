@@ -1,4 +1,19 @@
-<a mat-flat-button routerLink="/products/new">New product</a>
+<div class="toolbar">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Min price</mat-label>
+    <input matInput type="number" #min />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Max price</mat-label>
+    <input matInput type="number" #max />
+  </mat-form-field>
+
+  <button mat-flat-button (click)="applyFilter(min.value, max.value)">Apply</button>
+  <button mat-button (click)="min.value = ''; max.value = ''; clearFilter()">Clear</button>
+
+  <a mat-flat-button class="new-product" routerLink="/products/new">New product</a>
+</div>
 <table mat-table [dataSource]="products()">
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -26,3 +41,10 @@
   <tr mat-header-row *matHeaderRowDef="columns"></tr>
   <tr mat-row *matRowDef="let row; columns: columns"></tr>
 </table>
+  <mat-paginator
+  [length]="total()"
+  [pageSize]="pageSize()"
+  [pageIndex]="pageIndex()"
+  [pageSizeOptions]="[5, 10, 25]"
+  (page)="onPage($event)"
+  />
