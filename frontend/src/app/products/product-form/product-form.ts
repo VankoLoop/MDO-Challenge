@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Products } from '../products';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-product-form',
@@ -16,6 +17,7 @@ export class ProductForm {
   private readonly products = inject(Products);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly idParam = this.route.snapshot.paramMap.get('id');
 
   readonly id = this.idParam ? Number(this.idParam) : null;
@@ -31,12 +33,12 @@ export class ProductForm {
   });
 
   constructor() {
-  if (this.id !== null) {
-    this.products.get(this.id).subscribe({
-      next: (p) => this.form.patchValue(p),
-      error: () => this.error.set('Product not found.'),
-    });
-  }
+    if (this.id !== null) {
+      this.products.get(this.id).subscribe({
+        next: (p) => this.form.patchValue(p),
+        error: () => this.error.set('Product not found.'),
+      });
+    }
   }
 
   submit() {
@@ -53,7 +55,12 @@ export class ProductForm {
         : this.products.create(value);
 
     request.subscribe({
-      next: () => this.router.navigate(['/products']),
+      next: () => {
+        this.snackBar.open(this.isEdit ? 'Product updated' : 'Product created', 'Close', {
+          duration: 3000,
+        });
+        this.router.navigate(['/products']);
+      },
       error: () => {
         this.error.set('Could not save the product.');
         this.saving.set(false);
