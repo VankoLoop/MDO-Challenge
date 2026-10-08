@@ -1,15 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatFormFieldModule} from '@angular/material/form-field';
-import { MatInputModule} from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 import { Product } from '../product.model';
 import { Products } from '../products';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
-  imports: [MatTableModule, RouterLink, MatButtonModule , MatPaginatorModule, MatFormFieldModule, MatInputModule],
+  imports: [MatTableModule, RouterLink, MatButtonModule, MatPaginatorModule, MatFormFieldModule, MatInputModule, MatProgressBarModule],
   selector: 'app-product-list',
   styleUrl: './product-list.css',
   templateUrl: './product-list.html',
@@ -23,18 +24,31 @@ export class ProductList {
   readonly products = signal<Product[]>([]);
   readonly minPrice = signal<number | null>(null);
   readonly maxPrice = signal<number | null>(null);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
   constructor() {
     this.load();
   }
 
- load() {
+  load() {
+    this.loading.set(true);
+    this.error.set(null);
     this.productsService
       .list(this.pageIndex() + 1, this.pageSize(), this.minPrice(), this.maxPrice())
-      .subscribe((res) => {
-        this.products.set(res.data);
-        this.total.set(res.total);
-    });
+      .subscribe({
+        next: (res) => {
+          this.products.set(res.data);
+          this.total.set(res.total);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.products.set([]);
+          this.total.set(0);
+          this.error.set('Could not load products. Check that the server is running and try again.');
+          this.loading.set(false);
+        },
+      });
   }
 
   onPage(event: PageEvent) {
@@ -63,4 +77,3 @@ export class ProductList {
   }
 
 }
-  
